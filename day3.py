@@ -14,8 +14,8 @@ def main():
     for row, line in enumerate(grid):
         # e.g. ..35.$633.
         for match in re.finditer(r'\d+', line):
-            c_from, c_to = match.regs[0]
-            part_number = match.group(0)
+            c_from, c_to = match.start(), match.end()
+            part_number = match.group()
             is_part = False
             for c in range(c_from - 1, c_to + 1):
                 if 0 <= c < width:
