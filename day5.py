@@ -21,9 +21,9 @@ def main():
         # print(seed, end=" ")
         for phase in maps:
             for rangemap in phase:
-                dest_start, src_start, length = rangemap
-                if src_start <= seed < src_start + length:
-                    seed = dest_start + seed - src_start
+                destination_start, source_start, length = rangemap
+                if source_start <= seed < source_start + length:
+                    seed = destination_start + seed - source_start
                     break
             else:
                 seed = seed  # yeah
@@ -45,42 +45,55 @@ def main():
         next_intervals = set()
         while current_intervals:
             interval = current_intervals.pop()
-            int_start, int_end = interval  # note:  [5,6,7] has start=5 and end=8
-            for rangemap in phase:
-                dest_start, src_start, range_length = rangemap
-                src_end = src_start + range_length
-                if int_end <= src_start or src_end <= int_start:
-                    # is____ie    ss    se
-                    # ss    se    is____ie
-                    # no intersection
-                    continue
-                delta = dest_start - src_start
-                if int_start < src_start <= int_end:
-                    # is____ss    ??    ie    ??
-                    # break at ss, leave is-ss to other rangemaps
-                    current_intervals.add((int_start, src_start))
-                if int_start <= src_end < int_end:
-                    # ??    is    ??    se____ie
-                    # break at se, leave se-ie to other rangemaps
-                    current_intervals.add((src_end, int_end))
-                if src_start <= int_start < src_end <= int_end:
-                    # ss    is^^^^se____ie
-                    # map is-se, break at se (left se-ie already)
-                    next_intervals.add((int_start + delta, src_end + delta))
-                if int_start <= src_start < int_end <= src_end:
-                    # is____ss^^^^ie    se
-                    # map ss-ie, break at se (left is-ss already)
-                    next_intervals.add((src_start + delta, int_end + delta))
-                if src_start <= int_start < int_end <= src_end:
-                    # ss    is^^^^ie    se
-                    # map is-ie
-                    next_intervals.add((int_start + delta, int_end + delta))
-                if int_start <= src_start < src_end <= int_end:
-                    # is____ss^^^^se____ie
-                    # map ss-se
-                    next_intervals.add((src_start + delta, src_end + delta))
-                break
-            else:
+            if interval[0] == interval[1]:
+                # empty interval
+                continue
+
+            def split_up():
+                int_start, int_end = interval  # note:  [5,6,7] has start=5 and end=8
+                for rangemap in phase:
+                    dest_start, src_start, range_length = rangemap
+                    src_end = src_start + range_length
+                    delta = dest_start - src_start
+                    if src_start <= int_start < src_end <= int_end:
+                        #         is__________ie
+                        #           ****  vvvv
+                        #   ss__________se
+                        # map is-se, continue with se-ie
+                        current_intervals.add((src_end, int_end))
+                        return int_start + delta, src_end + delta
+                    if int_start <= src_start < int_end <= src_end:
+                        #   is__________ie
+                        #     vvvv  ****
+                        #         ss__________se
+                        # map ss-ie, continue with is-ss
+                        current_intervals.add((int_start, src_start))
+                        return src_start + delta, int_end + delta
+                    if src_start <= int_start < int_end <= src_end:
+                        #         is____ie
+                        #           ****
+                        #   ss________________se
+                        # map is-ie
+                        return int_start + delta, int_end + delta
+                    if int_start <= src_start < src_end <= int_end:
+                        #   is________________ie
+                        #     vvvv  ****  vvvv
+                        #         ss____se
+                        # map ss-se, continue with is-ss and with se-ie
+                        current_intervals.add((int_start, src_start))
+                        current_intervals.add((src_end, int_end))
+                        return src_start + delta, src_end + delta
+                    # else, int_end <= src_start
+                    #   is____ie    ss    se
+                    # or src_end <= int_start:
+                    #   ss    se    is____ie
+                    # either way, no intersection with this range, but we keep going to test other ranges
+                return None  # did not intersect with any range
+
+            split_up_piece = split_up()
+            if split_up_piece:
+                next_intervals.add(split_up_piece)
+            else:  # if did not intersect with any range, it just maps to itself
                 next_intervals.add(interval)
         current_intervals = next_intervals
     print(min(interval[0] for interval in current_intervals))  # 125742456
