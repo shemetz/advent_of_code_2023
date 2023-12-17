@@ -1,4 +1,4 @@
-from functools import lru_cache
+from functools import cache
 from typing import Tuple
 
 with open("input.txt") as input_file:
@@ -6,8 +6,8 @@ with open("input.txt") as input_file:
     input_lines = [line.strip('\n') for line in input_lines]
 
 
-@lru_cache
-def recursive_arrangements(pixels: str, groups: Tuple[int]):
+@cache
+def recursive_arrangements(pixels: str, groups: Tuple[int, ...]):
     if len(pixels) == 0:
         # e.g. "" (,)
         # e.g. "" (1,)
@@ -42,7 +42,7 @@ def recursive_arrangements(pixels: str, groups: Tuple[int]):
             # e.g. "##.???" (2,)
             # -> ".???" (,)
             return recursive_arrangements(pixels[groups[0]:], groups[1:])
-    raise Exception("no other branches possible")
+    raise Exception("no other recursive_arrangements branches are possible!")
 
 
 for part in [1, 2]:
@@ -51,6 +51,7 @@ for part in [1, 2]:
         left, right_s = line.split(" ")
         right = tuple([int(x) for x in right_s.split(",")])
         if part == 2:
+            # lengthen input, inserting ?s between each character
             left = "?".join([left] * 5)
             right = right * 5
         # left = pixels (as string), right = groups (as tuple of ints)
