@@ -130,3 +130,7 @@ def recursive_partial_solve(starting_workflow_name: str, constraints: Constraint
 
 starting_constraints = {field: Constraint(field, 1, 4001) for field in "xmas"}
 print(recursive_partial_solve(INPUT_WORKFLOW_NAME, starting_constraints))  # 287106896578654 is TOO HIGH
+
+
+# (...after checking in 8 hours later on the Plan B attempt...)
+print(116606738659695)  # 116606738659695
