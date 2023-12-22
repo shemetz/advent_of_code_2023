@@ -83,9 +83,10 @@ print(f"l_v_o = {l_v_o}; l_v_e = {l_v_e}; l_v_o_c = {l_v_o_c}; l_v_e_c = {l_v_e_
 n = extra_squares_each_side
 ans_2 = ((n+1)*(n+1)) * l_v_o + (n*n) * l_v_e - (n+1) * l_v_o_c + n * l_v_e_c
 print(ans_2)  #
-# ??? 618261389928641
-
-# NOT 618261416632373
+# 618261389928641 WRONG
+# 618261416632373 WRONG
 # needs to be between:
 # 618261400000000
 # 618273615815477
+
+# 618261433219147 is the true answer
