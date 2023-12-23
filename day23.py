@@ -6,13 +6,12 @@ with open("input.txt") as input_file:
     input_lines = input_file.readlines()
     input_lines = [line.strip('\n') for line in input_lines]
 
-# MAYBE USEFUL
-width, height = len(input_lines[0]), len(input_lines)
-grid = np.array([[ch for ch in line] for line in input_lines], dtype=str)
 UP, RIGHT, DOWN, LEFT = (-1, 0), (0, 1), (1, 0), (0, -1)
 
-start = (0, 1)  # first open space in row
-end = (height - 1, width - 2)  # last open space in row
+width, height = len(input_lines[0]), len(input_lines)
+grid = np.array([[ch for ch in line] for line in input_lines], dtype=str)
+start = (0, next(c for c in range(width) if grid[0][c] == "."))  # open space in first row
+end = (height - 1, next(c for c in range(width) if grid[height - 1][c] == "."))  # open space in last row
 
 # depth first to find longest path
 stack = [[start]]
@@ -32,25 +31,17 @@ while stack:
             continue
         if grid[new_r, new_c] == '#':
             continue
-        if grid[new_r, new_c] in '^>v<':
-            # ensure direction
-            if grid[new_r, new_c] == '^' and dr != -1:
-                continue
-            if grid[new_r, new_c] == '>' and dc != 1:
-                continue
-            if grid[new_r, new_c] == 'v' and dr != 1:
-                continue
-            if grid[new_r, new_c] == '<' and dc != -1:
-                continue
+        if grid[new_r, new_c] == '>' and dc != 1:
+            continue
+        if grid[new_r, new_c] == 'v' and dr != 1:
+            continue
         stack.append(path + [(new_r, new_c)])
 
 longest_path_length = len(longest_path) - 1  # subtract 1 for start
 print(longest_path_length)  # 2394
 
-# now optimized - with shortcutting some paths
+# simplify graph
 simplified_graph = defaultdict(lambda: defaultdict(lambda: -1))  # {from: {to: length}
-
-# REWRITING WITHOUT RECURSION
 frontier = [[start]]
 while frontier:
     curr_path = frontier.pop()
